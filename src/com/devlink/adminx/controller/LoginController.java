@@ -1,7 +1,7 @@
 package com.devlink.adminx.controller;
 
 import com.devlink.adminx.model.EmployeeManager;
-import com.devlink.adminx.model.UserModel;
+import com.devlink.adminx.model.User;
 import com.devlink.adminx.model.UserRepository;
 import com.devlink.adminx.view.EmployeeView;
 import com.devlink.adminx.view.LoginView;
@@ -10,12 +10,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class LoginController {
-    private final UserModel userModel;
+    private final User user;
     private final UserRepository userRepository;
     private final LoginView view;
 
-    public LoginController(UserModel userModel, LoginView view) {
-        this.userModel = userModel;
+    public LoginController(User user, LoginView view) {
+        this.user = user;
         this.userRepository = new UserRepository();
         this.view = view;
 
@@ -30,11 +30,10 @@ public class LoginController {
         public void actionPerformed(ActionEvent e) {
             String username = view.getUsername();
             String password = view.getPassword();
-            userModel.setUsername(username);
-            userModel.setPassword(password);
+            user.setUsername(username);
+            user.setPassword(password);
 
             if (userRepository.authenticate(username, password)) {
-                JOptionPane.showMessageDialog(null, "Login exitoso!", "Mensaje", JOptionPane.INFORMATION_MESSAGE);
                 view.dispose();
 
                 EmployeeView view = new EmployeeView();
@@ -42,9 +41,8 @@ public class LoginController {
                 EmployeeController employeeController = new EmployeeController(view, model);
                 employeeController.launch();
             } else {
-                JOptionPane.showMessageDialog(null, "Usuario o contraseña inválidos.",
+                JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrectos.",
                         "Error", JOptionPane.ERROR_MESSAGE);
-                System.out.println("Usuario o contraseña inválidos.");
             }
         }
     }

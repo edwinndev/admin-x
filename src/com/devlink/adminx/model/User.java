@@ -1,14 +1,14 @@
 package com.devlink.adminx.model;
 
-public class UserModel {
+public class User {
     private String username;
     private String password;
 
-    public UserModel() {
+    public User() {
 
     }
 
-    public UserModel(String username, String password) {
+    public User(String username, String password) {
         this.username = username;
         this.password = password;
     }
@@ -31,7 +31,7 @@ public class UserModel {
 
     @Override
     public String toString() {
-        return "UserModel{" +
+        return "User{" +
                 "username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 '}';

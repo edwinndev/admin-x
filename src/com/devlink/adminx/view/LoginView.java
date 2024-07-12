@@ -282,12 +282,4 @@ public class LoginView extends JFrame {
             g2d.dispose();
         }
     }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                new LoginView().setVisible(true);
-            }
-        });
-    }
 }

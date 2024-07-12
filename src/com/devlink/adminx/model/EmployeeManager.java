@@ -1,5 +1,6 @@
 package com.devlink.adminx.model;
 
+import com.devlink.adminx.utils.Var;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -8,11 +9,10 @@ import java.util.List;
 
 public class EmployeeManager {
     private List<Employee> employees;
-    private static final String CSV_FILE_PATH = "resources/data/employees.csv";
 
     public EmployeeManager() {
         try {
-            Path path = Paths.get(CSV_FILE_PATH);
+            Path path = Paths.get(Var.CSV_FILE_PATH);
             if(Files.notExists(path))
                 Files.createFile(path);
             this.employees = Employee.readEmployeesFromCSV(path);
@@ -29,44 +29,40 @@ public class EmployeeManager {
 
     public void addEmployee(Employee employee) {
         employees.add(employee);
-        Employee.writeEmployeesToCSV(employees, CSV_FILE_PATH);
+        Employee.updateEmployeesInCSV(employees);
     }
 
     public void updateEmployee(Employee updatedEmployee) {
         for (Employee employee : employees) {
-            if (employee.getCodigo().equals(updatedEmployee.getCodigo())) {
-                employee.setCedula(updatedEmployee.getCedula());
-                employee.setNombre(updatedEmployee.getNombre());
-                employee.setApellido(updatedEmployee.getApellido());
-                employee.setDireccion(updatedEmployee.getDireccion());
-                employee.setTelefono(updatedEmployee.getTelefono());
-                employee.setFechaIngreso(updatedEmployee.getFechaIngreso());
-                employee.setCargo(updatedEmployee.getCargo());
-                employee.setDepartamento(updatedEmployee.getDepartamento());
-                employee.setSalario(updatedEmployee.getSalario());
+            if (employee.getCode().equals(updatedEmployee.getCode())) {
+                employee.setEmail(updatedEmployee.getEmail());
+                employee.setNames(updatedEmployee.getNames());
+                employee.setAddress(updatedEmployee.getAddress());
+                employee.setPhone(updatedEmployee.getPhone());
+                employee.setAdmissionDate(updatedEmployee.getAdmissionDate());
+                employee.setCategory(updatedEmployee.getCategory());
+                employee.setSalary(updatedEmployee.getSalary());
+                Employee.updateEmployeesInCSV(employees);
                 break;
             }
         }
-        Employee.writeEmployeesToCSV(employees, CSV_FILE_PATH);
     }
 
-    public void deleteEmployee(String codigo) {
-        employees.removeIf(employee -> employee.getCodigo().equals(codigo));
-        Employee.writeEmployeesToCSV(employees, CSV_FILE_PATH);
+    public boolean deleteEmployee(String code) {
+        return employees.removeIf(employee -> employee.getCode().equals(code));
     }
 
     public boolean isDuplicate(Employee newEmployee) {
         for (Employee employee : employees) {
-            if (employee.getCodigo().equals(newEmployee.getCodigo())) {
+            if (employee.getCode().equalsIgnoreCase(newEmployee.getCode()))
                 return true;
-            }
         }
         return false;
     }
 
-    public Employee getEmployeeByCodigo(String codigo) {
+    public Employee getEmployeeByCode(String code) {
         for (Employee employee : employees) {
-            if (employee.getCodigo().equals(codigo)) {
+            if (employee.getCode().equals(code)) {
                 return employee;
             }
         }

@@ -5,25 +5,27 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class EmployeeView extends JFrame {
-    private JTextField codigoField;
-    private JTextField cedulaField;
-    private JTextField nombreField;
-    private JTextField apellidoField;
-    private JTextField direccionField;
-    private JTextField telefonoField;
-    private JTextField fechaIngresoField;
-    private JTextField cargoField;
-    private JTextField departamentoField;
-    private JTextField salarioField;
-    private JButton saveButton;
-    private JButton updateButton;
-    private JButton deleteButton;
-    private JButton addButton; // Nuevo botón de "Agregar"
-    private JTable employeeTable;
+    public JTextField txtCode;
+    public JTextField txtEmail;
+    public JTextField txtNames;
+    public JTextField txtAddress;
+    public JTextField txtPhone;
+    public JTextField txtAdmissionDate;
+    public JTextField txtCategory;
+    public JTextField txtSalary;
+    private JButton btnSave;
+    private JButton btnUpdate;
+    private JButton btnDelete;
+    private JButton btnAdd;
+    public JButton btnAddHours;
+    public JTable tableEmployees;
     private DefaultTableModel tableModel;
 
     public EmployeeView() {
@@ -40,12 +42,13 @@ public class EmployeeView extends JFrame {
         JPanel tablePanel = createTablePanel();
 
         mainPanel.add(formPanel, BorderLayout.NORTH);
-        mainPanel.add(buttonPanel, BorderLayout.WEST); // Cambiado a WEST para la alineación de botones
-        mainPanel.add(tablePanel, BorderLayout.CENTER); // Cambiado a CENTER para la alineación de la tabla
+        mainPanel.add(buttonPanel, BorderLayout.WEST);
+        mainPanel.add(tablePanel, BorderLayout.CENTER);
 
         getContentPane().add(mainPanel);
         pack();
-        setLocationRelativeTo(null); // Centrar ventana en la pantalla
+        setLocationRelativeTo(null);
+        setExtendedState(MAXIMIZED_BOTH);
     }
 
     private JPanel createFormPanel() {
@@ -58,37 +61,55 @@ public class EmployeeView extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(10, 10, 10, 10);
 
-        codigoField = createRoundedTextField();
-        addField(panel, "Codigo:", codigoField, gbc);
+        txtCode = createRoundedTextField();
+        txtCode.setEnabled(false);
+        txtCode.setEditable(false);
+        addField(panel, "Codigo:", txtCode, gbc);
 
-        cedulaField = createRoundedTextField();
-        addField(panel, "Cedula:", cedulaField, gbc);
+        txtEmail = createRoundedTextField();
+        addField(panel, "Email:", txtEmail, gbc);
 
-        nombreField = createRoundedTextField();
-        addField(panel, "Nombre:", nombreField, gbc);
+        txtNames = createRoundedTextField();
+        addField(panel, "Nombres:", txtNames, gbc);
 
-        apellidoField = createRoundedTextField();
-        addField(panel, "Apellido:", apellidoField, gbc);
+        txtAddress = createRoundedTextField();
+        addField(panel, "Direccion:", txtAddress, gbc);
 
-        direccionField = createRoundedTextField();
-        addField(panel, "Direccion:", direccionField, gbc);
+        txtPhone = createRoundedTextField();
+        addField(panel, "Telefono:", txtPhone, gbc);
 
-        telefonoField = createRoundedTextField();
-        addField(panel, "Telefono:", telefonoField, gbc);
+        txtAdmissionDate = createRoundedTextField();
+        addField(panel, "Fecha de Ingreso:", txtAdmissionDate, gbc);
 
-        fechaIngresoField = createRoundedTextField();
-        addField(panel, "Fecha de Ingreso:", fechaIngresoField, gbc);
+        txtCategory = createRoundedTextField();
+        addField(panel, "Categoria:", txtCategory, gbc);
 
-        cargoField = createRoundedTextField();
-        addField(panel, "Cargo:", cargoField, gbc);
+        txtSalary = createRoundedTextField();
+        addDecimalValidator(txtSalary);
+        addField(panel, "Salario Mensual:", txtSalary, gbc);
 
-        departamentoField = createRoundedTextField();
-        addField(panel, "Departamento:", departamentoField, gbc);
-
-        salarioField = createRoundedTextField();
-        addField(panel, "Salario:", salarioField, gbc);
+        ViewFactory viewFactory = new ViewFactory();
+        btnAddHours = viewFactory.createStyledButton("Ver horas");
+        btnAddHours.setEnabled(false);
+        addField(panel, "", btnAddHours, gbc);
 
         return panel;
+    }
+
+    private void addDecimalValidator(JTextComponent component) {
+        component.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char input = e.getKeyChar();
+                String text = component.getText();
+
+                if (!Character.isDigit(input) && input != '.' && input != KeyEvent.VK_BACK_SPACE) {
+                    e.consume();
+                } else if (input == '.' && text.contains(".")) {
+                    e.consume();
+                }
+            }
+        });
     }
 
     private JTextField createRoundedTextField() {
@@ -101,7 +122,7 @@ public class EmployeeView extends JFrame {
         return textField;
     }
 
-    private void addField(JPanel panel, String labelText, JTextField textField, GridBagConstraints gbc) {
+    private void addField(JPanel panel, String labelText, JComponent textField, GridBagConstraints gbc) {
         JLabel label = new JLabel(labelText);
         label.setFont(new Font("Arial", Font.PLAIN, 16));
 
@@ -117,35 +138,22 @@ public class EmployeeView extends JFrame {
     }
 
     private JPanel createButtonPanel() {
-        JPanel panel = new JPanel(new GridLayout(4, 1, 0, 20)); // GridLayout para los botones
+        JPanel panel = new JPanel(new GridLayout(4, 1, 0, 20));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        saveButton = createStyledButton("Guardar");
-        updateButton = createStyledButton("Actualizar");
-        deleteButton = createStyledButton("Eliminar");
-        addButton = createStyledButton("Agregar"); // Botón de "Agregar"
+        ViewFactory viewFactory = new ViewFactory();
 
-        panel.add(saveButton);
-        panel.add(updateButton);
-        panel.add(deleteButton);
-        panel.add(addButton); // Agregar botón de "Agregar"
+        btnSave = viewFactory.createStyledButton("Guardar");
+        btnUpdate = viewFactory.createStyledButton("Actualizar");
+        btnDelete = viewFactory.createStyledButton("Eliminar");
+        btnAdd = viewFactory.createStyledButton("Agregar");
+
+        panel.add(btnSave);
+        panel.add(btnUpdate);
+        panel.add(btnDelete);
+        panel.add(btnAdd);
 
         return panel;
-    }
-
-    private JButton createStyledButton(String text) {
-        JButton button = new JButton(text);
-        button.setPreferredSize(new Dimension(120, 40));
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setBackground(new Color(51, 153, 255));
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
-        button.setOpaque(true);
-        button.setBorderPainted(false);
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        return button;
     }
 
     private JPanel createTablePanel() {
@@ -153,11 +161,12 @@ public class EmployeeView extends JFrame {
         panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Lista de Empleados"));
         panel.setBackground(Color.WHITE);
 
-        tableModel = new DefaultTableModel(new Object[]{"Codigo", "Cedula", "Nombre", "Apellido", "Direccion", "Telefono", "Fecha de Ingreso", "Cargo", "Departamento", "Salario"}, 0);
-        employeeTable = new JTable(tableModel);
-        employeeTable.setFont(new Font("Arial", Font.PLAIN, 14));
-        employeeTable.setRowHeight(25);
-        JScrollPane scrollPane = new JScrollPane(employeeTable);
+        String[] columns = {"Codigo", "Email", "Nombres", "Direccion", "Telefono", "Fecha de Ingreso", "Categoria", "Salario"};
+        tableModel = new DefaultTableModel(columns, 0);
+        tableEmployees = new JTable(tableModel);
+        tableEmployees.setFont(new Font("Arial", Font.PLAIN, 14));
+        tableEmployees.setRowHeight(25);
+        JScrollPane scrollPane = new JScrollPane(tableEmployees);
         scrollPane.setPreferredSize(new Dimension(800, 200));
 
         panel.add(scrollPane, BorderLayout.CENTER);
@@ -167,29 +176,27 @@ public class EmployeeView extends JFrame {
 
     public void addEmployeeToTable(Employee employee) {
         tableModel.addRow(new Object[]{
-                employee.getCodigo(), employee.getCedula(), employee.getNombre(),
-                employee.getApellido(), employee.getDireccion(), employee.getTelefono(),
-                employee.getFechaIngreso(), employee.getCargo(), employee.getDepartamento(), employee.getSalario()
+                employee.getCode(), employee.getEmail(), employee.getNames(), employee.getAddress(), employee.getPhone(),
+                employee.getAdmissionDate(), employee.getCategory(), employee.getSalary()
         });
     }
 
     public void updateEmployeeInTable(Employee employee) {
-        int selectedRow = employeeTable.getSelectedRow();
+        int selectedRow = tableEmployees.getSelectedRow();
         if (selectedRow >= 0) {
-            tableModel.setValueAt(employee.getCedula(), selectedRow, 1);
-            tableModel.setValueAt(employee.getNombre(), selectedRow, 2);
-            tableModel.setValueAt(employee.getApellido(), selectedRow, 3);
-            tableModel.setValueAt(employee.getDireccion(), selectedRow, 4);
-            tableModel.setValueAt(employee.getTelefono(), selectedRow, 5);
-            tableModel.setValueAt(employee.getFechaIngreso(), selectedRow, 6);
-            tableModel.setValueAt(employee.getCargo(), selectedRow, 7);
-            tableModel.setValueAt(employee.getDepartamento(), selectedRow, 8);
-            tableModel.setValueAt(employee.getSalario(), selectedRow, 9);
+            tableModel.setValueAt(employee.getCode(), selectedRow, 0);
+            tableModel.setValueAt(employee.getEmail(), selectedRow, 1);
+            tableModel.setValueAt(employee.getNames(), selectedRow, 2);
+            tableModel.setValueAt(employee.getAddress(), selectedRow, 3);
+            tableModel.setValueAt(employee.getPhone(), selectedRow, 4);
+            tableModel.setValueAt(employee.getAdmissionDate(), selectedRow, 5);
+            tableModel.setValueAt(employee.getCategory(), selectedRow, 6);
+            tableModel.setValueAt(employee.getSalary(), selectedRow, 7);
         }
     }
 
     public void deleteEmployeeFromTable() {
-        int selectedRow = employeeTable.getSelectedRow();
+        int selectedRow = tableEmployees.getSelectedRow();
         if (selectedRow >= 0) {
             tableModel.removeRow(selectedRow);
         }
@@ -197,102 +204,44 @@ public class EmployeeView extends JFrame {
 
     public Employee getEmployeeFromFields() {
         return new Employee(
-                codigoField.getText(), cedulaField.getText(), nombreField.getText(), apellidoField.getText(),
-                direccionField.getText(), telefonoField.getText(), fechaIngresoField.getText(),
-                cargoField.getText(), departamentoField.getText(), Double.parseDouble(salarioField.getText())
+                txtCode.getText(), txtEmail.getText(), txtNames.getText(),
+                txtAddress.getText(), txtPhone.getText(), txtAdmissionDate.getText(),
+                txtCategory.getText(), Double.parseDouble(txtSalary.getText())
         );
     }
 
     public void setFields(Employee employee) {
-        codigoField.setText(employee.getCodigo());
-        cedulaField.setText(employee.getCedula());
-        nombreField.setText(employee.getNombre());
-        apellidoField.setText(employee.getApellido());
-        direccionField.setText(employee.getDireccion());
-        telefonoField.setText(employee.getTelefono());
-        fechaIngresoField.setText(employee.getFechaIngreso());
-        cargoField.setText(employee.getCargo());
-        departamentoField.setText(employee.getDepartamento());
-        salarioField.setText(String.valueOf(employee.getSalario()));
+        txtCode.setText(employee.getCode());
+        txtEmail.setText(employee.getEmail());
+        txtNames.setText(employee.getNames());
+        txtAddress.setText(employee.getAddress());
+        txtPhone.setText(employee.getPhone());
+        txtAdmissionDate.setText(employee.getAdmissionDate());
+        txtCategory.setText(employee.getCategory());
+        txtSalary.setText(String.valueOf(employee.getSalary()));
     }
 
-    public JButton getSaveButton() {
-        return saveButton;
+    public void addSaveEmployeeListener(ActionListener listener) {
+        btnSave.addActionListener(listener);
     }
 
-    public JButton getUpdateButton() {
-        return updateButton;
+    public void addUpdateEmployeeListener(ActionListener listener) {
+        btnUpdate.addActionListener(listener);
     }
 
-    public JButton getDeleteButton() {
-        return deleteButton;
+    public void addDeleteEmployeeListener(ActionListener listener) {
+        btnDelete.addActionListener(listener);
     }
 
-    public JButton getAddButton() {
-        return addButton;
+    public void addAddEmployeeListener(ActionListener listener) {
+        btnAdd.addActionListener(listener);
     }
 
-    public JTable getEmployeeTable() {
-        return employeeTable;
-    }
-
-    public void addSaveListener(ActionListener listener) {
-        saveButton.addActionListener(listener);
-    }
-
-    public void addUpdateListener(ActionListener listener) {
-        updateButton.addActionListener(listener);
-    }
-
-    public void addDeleteListener(ActionListener listener) {
-        deleteButton.addActionListener(listener);
-    }
-
-    public void addAddListener(ActionListener listener) {
-        addButton.addActionListener(listener);
+    public void addSendMailEmployeeListener(ActionListener listener) {
+        btnAddHours.addActionListener(listener);
     }
 
     public void addEmployeeSelectionListener(ListSelectionListener listener) {
-        employeeTable.getSelectionModel().addListSelectionListener(listener);
-    }
-
-    public JTextField getCodigoField() {
-        return codigoField;
-    }
-
-    public JTextField getCedulaField() {
-        return cedulaField;
-    }
-
-    public JTextField getNombreField() {
-        return nombreField;
-    }
-
-    public JTextField getApellidoField() {
-        return apellidoField;
-    }
-
-    public JTextField getDireccionField() {
-        return direccionField;
-    }
-
-    public JTextField getTelefonoField() {
-        return telefonoField;
-    }
-
-    public JTextField getFechaIngresoField() {
-        return fechaIngresoField;
-    }
-
-    public JTextField getCargoField() {
-        return cargoField;
-    }
-
-    public JTextField getDepartamentoField() {
-        return departamentoField;
-    }
-
-    public JTextField getSalarioField() {
-        return salarioField;
+        tableEmployees.getSelectionModel().addListSelectionListener(listener);
     }
 }

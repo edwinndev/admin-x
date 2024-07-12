@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Properties;
 
 public class UserRepository {
-    private final List<UserModel> users;
+    private final List<User> users;
 
     public UserRepository() {
         users = new ArrayList<>();
@@ -17,10 +17,10 @@ public class UserRepository {
     }
 
     private void loadDefaultUsers() {
-        loadUsers("users/user1.ini");
+        loadUsers();
     }
 
-    public void loadUsers(String filePath) {
+    public void loadUsers() {
         try {
             Properties prop = new Properties();
             InputStream in = new FileInputStream("resources/data/user.properties");
@@ -28,17 +28,17 @@ public class UserRepository {
 
             String username = prop.getProperty("username");
             String password = prop.getProperty("password");
-            UserModel model = new UserModel(username, password);
+            User model = new User(username, password);
             users.add(model);
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error al cargar usuarios desde el archivo: " + filePath,
+            JOptionPane.showMessageDialog(null, "Error al cargar usuarios desde el archivo de usuarios ",
                     "Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace(System.err);
         }
     }
 
     public boolean authenticate(String username, String password) {
-        for (UserModel user : users) {
+        for (User user : users) {
             if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
                 return true;
             }

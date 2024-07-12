@@ -1,5 +1,7 @@
 package com.devlink.adminx.model;
 
+import com.devlink.adminx.utils.Var;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -9,123 +11,100 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Employee {
+    private String code;
+    private String email;
+    private String names;
+    private String address;
+    private String phone;
+    private String admissionDate;
+    private String category;
+    private double salary;
 
-    private String codigo;
-    private String cedula;
-    private String nombre;
-    private String apellido;
-    private String direccion;
-    private String telefono;
-    private String fechaIngreso;
-    private String cargo;
-    private String departamento;
-    private double salario;
-
-    public Employee(String codigo, String cedula, String nombre, String apellido, String direccion,
-                    String telefono, String fechaIngreso, String cargo, String departamento, double salario) {
-        this.codigo = codigo;
-        this.cedula = cedula;
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.direccion = direccion;
-        this.telefono = telefono;
-        this.fechaIngreso = fechaIngreso;
-        this.cargo = cargo;
-        this.departamento = departamento;
-        this.salario = salario;
+    public Employee(String code, String email, String names, String address,
+                    String phone, String admissionDate, String category, double salary) {
+        this.code = code;
+        this.email = email;
+        this.names = names;
+        this.address = address;
+        this.phone = phone;
+        this.admissionDate = admissionDate;
+        this.category = category;
+        this.salary = salary;
     }
 
     public Employee(String[] userDetails) {
-        this.codigo = userDetails[0];
-        this.cedula = userDetails[1];
-        this.nombre = userDetails[2];
-        this.apellido = userDetails[3];
-        this.direccion = userDetails[4];
-        this.telefono = userDetails[5];
-        this.fechaIngreso = userDetails[6];
-        this.cargo = userDetails[7];
-        this.departamento = userDetails[8];
-        this.salario = Double.parseDouble(userDetails[9]);
+        this.code = userDetails[0];
+        this.email = userDetails[1];
+        this.names = userDetails[2];
+        this.address = userDetails[3];
+        this.phone = userDetails[4];
+        this.admissionDate = userDetails[5];
+        this.category = userDetails[6];
+        this.salary = Double.parseDouble(userDetails[7]);
     }
 
-    public String getCodigo() {
-        return codigo;
+    public String getCode() {
+        return code;
     }
 
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
+    public void setCode(String code) {
+        this.code = code;
     }
 
-    public String getCedula() {
-        return cedula;
+    public String getEmail() {
+        return email;
     }
 
-    public void setCedula(String cedula) {
-        this.cedula = cedula;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getNames() {
+        return names;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setNames(String names) {
+        this.names = names;
     }
 
-    public String getApellido() {
-        return apellido;
+    public String getAddress() {
+        return address;
     }
 
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
-    public String getDireccion() {
-        return direccion;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
-    public String getTelefono() {
-        return telefono;
+    public String getAdmissionDate() {
+        return admissionDate;
     }
 
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
+    public void setAdmissionDate(String admissionDate) {
+        this.admissionDate = admissionDate;
     }
 
-    public String getFechaIngreso() {
-        return fechaIngreso;
+    public String getCategory() {
+        return category;
     }
 
-    public void setFechaIngreso(String fechaIngreso) {
-        this.fechaIngreso = fechaIngreso;
+    public void setCategory(String category) {
+        this.category = category;
     }
 
-    public String getCargo() {
-        return cargo;
+    public double getSalary() {
+        return salary;
     }
 
-    public void setCargo(String cargo) {
-        this.cargo = cargo;
-    }
-
-    public String getDepartamento() {
-        return departamento;
-    }
-
-    public void setDepartamento(String departamento) {
-        this.departamento = departamento;
-    }
-
-    public double getSalario() {
-        return salario;
-    }
-
-    public void setSalario(double salario) {
-        this.salario = salario;
+    public void setSalary(double salary) {
+        this.salary = salary;
     }
 
     //Leer empleados del archivo
@@ -147,9 +126,9 @@ public class Employee {
     }
 
     //Guardar datos del empleado en el archivo
-    public static void writeEmployeesToCSV(List<Employee> employees, String filePath) {
+    public static void updateEmployeesInCSV(List<Employee> employees) {
         try {
-            Path path = Paths.get(filePath);
+            Path path = Paths.get(Var.CSV_FILE_PATH);
             List<String> strings = new ArrayList<>(employees.size());
             for (Employee employee : employees)
                 strings.add(employee.toString());
@@ -162,15 +141,13 @@ public class Employee {
 
     @Override
     public String toString() {
-        return codigo + "," +
-                cedula + "," +
-                nombre + "," +
-                apellido + "," +
-                direccion + "," +
-                telefono + "," +
-                fechaIngreso + "," +
-                cargo + "," +
-                departamento + "," +
-                salario;
+        return code + "," +
+                email + "," +
+                names + "," +
+                address + "," +
+                phone + "," +
+                admissionDate + "," +
+                category + "," +
+                salary;
     }
 }
