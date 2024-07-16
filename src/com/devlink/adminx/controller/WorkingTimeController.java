@@ -1,11 +1,11 @@
 package com.devlink.adminx.controller;
 
 import com.devlink.adminx.model.Employee;
-import com.devlink.adminx.model.Work;
+import com.devlink.adminx.model.WorkingTime;
 import com.devlink.adminx.utils.EmailSender;
 import com.devlink.adminx.utils.FileUtils;
-import com.devlink.adminx.utils.Var;
-import com.devlink.adminx.view.WorkView;
+import com.devlink.adminx.utils.Environment;
+import com.devlink.adminx.view.WorkingTimeView;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,18 +16,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class WorkController {
+public class WorkingTimeController {
     private final Employee employee;
-    private final WorkView view;
+    private final WorkingTimeView view;
     private final EmailSender emailSender;
     private final Path employeeHoursPath;
 
-    public WorkController(Employee employee, WorkView view) {
+    public WorkingTimeController(Employee employee, WorkingTimeView view) {
         this.employee = employee;
         this.view = view;
         this.emailSender = new EmailSender();
 
-        String filePath = Var.RESOURCE_DATA
+        String filePath = Environment.SRC_DATA_PATH
                 .concat(employee.getCode())
                 .concat(".csv");
         employeeHoursPath = Paths.get(filePath);
@@ -66,10 +66,10 @@ public class WorkController {
         double totalHours = 156;
         double totalWorkHours = 0.0;
 
-        List<Work> works = FileUtils.readHoursFromCSVByUser(employeeHoursPath);
-        for (Work work : works) {
-            totalWorkHours += work.getHours();
-            view.addWorkToTable(work);
+        List<WorkingTime> workingTimes = FileUtils.readHoursFromCSVByUser(employeeHoursPath);
+        for (WorkingTime workingTime : workingTimes) {
+            totalWorkHours += workingTime.getHours();
+            view.addWorkToTable(workingTime);
         }
 
         double totalImport = employee.getSalary() / totalWorkHours;
@@ -82,22 +82,9 @@ public class WorkController {
     private void startTask(ActionEvent e) {
         view.btnSendMail.setEnabled(false);
 
-        List<Work> works = FileUtils.readHoursFromCSVByUser(employeeHoursPath);
-        StringBuilder html = new StringBuilder();
-        for (Work work : works) {
-            html.append("<li>")
-                    .append(work.getMonth())
-                    .append(" : ")
-                    .append(work.getYear())
-                    .append(" - ")
-                    .append(work.getHours())
-                    .append(" horas trabajadas")
-                    .append(" - USD ")
-                    .append(work.getTotal())
-                    .append("</li>");
-        }
+        List<WorkingTime> workingTimes = FileUtils.readHoursFromCSVByUser(employeeHoursPath);
+        String finalHtml = getFinalHtml(workingTimes);
 
-        String finalHtml = html.toString();
         SwingWorker<Void, Integer> worker = new SwingWorker<>() {
             @Override
             protected Void doInBackground() throws Exception {
@@ -107,7 +94,7 @@ public class WorkController {
                     Thread.sleep(10);
                     publish(i);
                 }
-                boolean send = emailSender.sendEmail(employee.getEmail(), "Reporte de Horas", finalHtml);
+                boolean send = emailSender.sendEmail(employee, "Reporte de Horas", finalHtml);
                 if(send) {
                     JOptionPane.showMessageDialog(view, "Reporte de Horas enviado");
                 } else {
@@ -138,10 +125,51 @@ public class WorkController {
         worker.execute();
     }
 
+    private String getFinalHtml(List<WorkingTime> workingTimes) {
+        StringBuilder html = new StringBuilder();
+        double totalImport = 0.0;
+        for (WorkingTime workingTime : workingTimes) {
+            String item = String.format(
+                    """
+                    <tr>
+                           <td>%s</td>
+                           <td>%s</td>
+                           <td>%.2f</td>
+                           <td>USD %.2f</td>
+                           <td>USD %.2f</td>
+                    </tr>
+                    """, workingTime.getMonth(), workingTime.getYear(), workingTime.getHours(), employee.getSalary(), workingTime.getTotal());
+            html.append(item);
+            totalImport += workingTime.getTotal();
+        }
+
+        return String.format(
+                """
+               <table>
+                   <thead>
+                       <tr>
+                           <th>Mes</th>
+                           <th>Año</th>
+                           <th>Horas inputadas</th>
+                           <th>Importe Base</th>
+                           <th>Importe Extra</th>
+                       </tr>
+                   </thead>
+                   <tbody>
+                       %s
+                       <tr>
+                           <td colspan="4" style="text-align: right;">Total</td>
+                           <td>USD %.2f</td>
+                       </tr>
+                   </tbody>
+               </table>
+               """, html, totalImport);
+    }
+
     class AddTimeListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            view.addWorkToTable(new Work());
+            view.addWorkToTable(new WorkingTime());
         }
     }
 
@@ -161,8 +189,8 @@ public class WorkController {
             double hours = Double.parseDouble(view.tableModel.getValueAt(i, 2).toString());
             double total = Double.parseDouble(view.tableModel.getValueAt(i, 3).toString());
 
-            Work work = new Work(month, year, hours, total);
-            data.add(work.toString());
+            WorkingTime workingTime = new WorkingTime(month, year, hours, total);
+            data.add(workingTime.toString());
         }
         FileUtils.updateWorksCSV(data, employee.getCode());
     }

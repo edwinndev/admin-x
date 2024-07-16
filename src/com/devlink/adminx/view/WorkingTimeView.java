@@ -1,6 +1,7 @@
 package com.devlink.adminx.view;
 
-import com.devlink.adminx.model.Work;
+import com.devlink.adminx.model.WorkingTime;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -8,7 +9,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 
-public class WorkView extends JDialog {
+public class WorkingTimeView extends JDialog {
     public JLabel labelNames;
     public JLabel labelCode;
     public JLabel labelEmail;
@@ -24,7 +25,7 @@ public class WorkView extends JDialog {
     public JTable worksTable;
     public DefaultTableModel tableModel;
 
-    public WorkView(Frame owner, boolean modal) {
+    public WorkingTimeView(Frame owner, boolean modal) {
         super(owner, modal);
         setTitle("Registro de Horas");
         setSize(800, 600);
@@ -120,9 +121,9 @@ public class WorkView extends JDialog {
         return table;
     }
 
-    public void addWorkToTable(Work work) {
+    public void addWorkToTable(WorkingTime workingTime) {
         tableModel.addRow(new Object[]{
-                work.getMonth(), work.getYear(), work.getHours(), work.getTotal()
+                workingTime.getMonth(), workingTime.getYear(), workingTime.getHours(), workingTime.getTotal()
         });
     }
 

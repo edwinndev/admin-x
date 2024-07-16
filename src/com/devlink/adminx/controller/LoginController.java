@@ -1,8 +1,8 @@
 package com.devlink.adminx.controller;
 
-import com.devlink.adminx.model.EmployeeManager;
+import com.devlink.adminx.repository.EmployeeRepository;
 import com.devlink.adminx.model.User;
-import com.devlink.adminx.model.UserRepository;
+import com.devlink.adminx.repository.UserRepository;
 import com.devlink.adminx.view.EmployeeView;
 import com.devlink.adminx.view.LoginView;
 import javax.swing.*;
@@ -33,11 +33,11 @@ public class LoginController {
             user.setUsername(username);
             user.setPassword(password);
 
-            if (userRepository.authenticate(username, password)) {
+            if (userRepository.authenticate(user)) {
                 view.dispose();
 
                 EmployeeView view = new EmployeeView();
-                EmployeeManager model = new EmployeeManager();
+                EmployeeRepository model = new EmployeeRepository();
                 EmployeeController employeeController = new EmployeeController(view, model);
                 employeeController.launch();
             } else {

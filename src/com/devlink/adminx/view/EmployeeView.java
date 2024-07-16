@@ -237,7 +237,7 @@ public class EmployeeView extends JFrame {
         btnAdd.addActionListener(listener);
     }
 
-    public void addSendMailEmployeeListener(ActionListener listener) {
+    public void addAddTimeEmployeeListener(ActionListener listener) {
         btnAddHours.addActionListener(listener);
     }
 

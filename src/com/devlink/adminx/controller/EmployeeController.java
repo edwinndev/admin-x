@@ -1,8 +1,8 @@
 package com.devlink.adminx.controller;
 
-import com.devlink.adminx.view.WorkView;
+import com.devlink.adminx.view.WorkingTimeView;
 import com.devlink.adminx.model.Employee;
-import com.devlink.adminx.model.EmployeeManager;
+import com.devlink.adminx.repository.EmployeeRepository;
 import com.devlink.adminx.utils.Security;
 import com.devlink.adminx.view.EmployeeView;
 import javax.swing.*;
@@ -13,11 +13,11 @@ import java.awt.event.ActionListener;
 
 public class EmployeeController {
     private final EmployeeView view;
-    private final EmployeeManager model;
+    private final EmployeeRepository employeeRepository;
 
-    public EmployeeController(EmployeeView view, EmployeeManager model) {
+    public EmployeeController(EmployeeView view, EmployeeRepository employeeRepository) {
         this.view = view;
-        this.model = model;
+        this.employeeRepository = employeeRepository;
 
         // Asignar eventos a los botones y a la tabla
         this.view.addSaveEmployeeListener(new SaveEmployeeListener());
@@ -25,19 +25,18 @@ public class EmployeeController {
         this.view.addDeleteEmployeeListener(new DeleteEmployeeListener());
         this.view.addEmployeeSelectionListener(new EmployeeSelectionListener());
         this.view.addAddEmployeeListener(new AddEmployeeListener());
-        this.view.addSendMailEmployeeListener(new AddHourWorkEmployeeListener());
+        this.view.addAddTimeEmployeeListener(new AddTimeWorkEmployeeListener());
 
         // Cargar los empleados existentes en la tabla al inicio
         loadEmployeesToTable();
     }
 
     private void loadEmployeesToTable() {
-        for (Employee employee : model.getEmployees()) {
+        for (Employee employee : employeeRepository.getEmployees()) {
              view.addEmployeeToTable(employee);
         }
     }
 
-    //Hacer visible la ventana
     public void launch() {
         this.view.setVisible(true);
     }
@@ -46,8 +45,8 @@ public class EmployeeController {
         @Override
         public void actionPerformed(ActionEvent e) {
             Employee employee = view.getEmployeeFromFields();
-            if (!model.isDuplicate(employee)) {
-                model.addEmployee(employee);
+            if (!employeeRepository.isDuplicate(employee)) {
+                employeeRepository.addEmployee(employee);
                 view.addEmployeeToTable(employee);
 
                 // Limpiar campos después de agregar
@@ -62,7 +61,7 @@ public class EmployeeController {
         @Override
         public void actionPerformed(ActionEvent e) {
             Employee employee = view.getEmployeeFromFields();
-            model.updateEmployee(employee);
+            employeeRepository.updateEmployee(employee);
             view.updateEmployeeInTable(employee);
         }
     }
@@ -75,9 +74,9 @@ public class EmployeeController {
             if(code != null) {
                 int option = JOptionPane.showConfirmDialog(view, "¿Eliminar empleado?", "System", JOptionPane.YES_NO_OPTION);
                 if(option == JOptionPane.YES_OPTION) {
-                    boolean deleted = model.deleteEmployee(code);
+                    boolean deleted = employeeRepository.deleteEmployee(code);
                     if(deleted) {
-                        Employee.updateEmployeesInCSV(model.getEmployees());
+                        employeeRepository.updateEmployeesInCSV(employeeRepository.getEmployees());
                         view.deleteEmployeeFromTable();
                         clearFields();
                     } else {
@@ -97,7 +96,7 @@ public class EmployeeController {
                 if (selectedRow >= 0) {
                     view.btnAddHours.setEnabled(true);
                     String code = view.tableEmployees.getValueAt(selectedRow, 0).toString();
-                    Employee selectedEmployee = model.getEmployeeByCode(code);
+                    Employee selectedEmployee = employeeRepository.getEmployeeByCode(code);
                     if (selectedEmployee != null) {
                         view.setFields(selectedEmployee);
                     }
@@ -114,14 +113,14 @@ public class EmployeeController {
         }
     }
 
-    class AddHourWorkEmployeeListener implements ActionListener {
+    class AddTimeWorkEmployeeListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             Employee employee = view.getEmployeeFromFields();
             if(employee != null && employee.getCode() != null) {
-                WorkView workView = new WorkView(view, true);
-                WorkController workController = new WorkController(employee, workView);
-                workController.launch();
+                WorkingTimeView workingTimeView = new WorkingTimeView(view, true);
+                WorkingTimeController workingTimeController = new WorkingTimeController(employee, workingTimeView);
+                workingTimeController.launch();
             }
         }
     }

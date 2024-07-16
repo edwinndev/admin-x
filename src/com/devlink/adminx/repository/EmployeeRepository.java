@@ -1,21 +1,26 @@
-package com.devlink.adminx.model;
+package com.devlink.adminx.repository;
 
-import com.devlink.adminx.utils.Var;
+import com.devlink.adminx.model.Employee;
+import com.devlink.adminx.utils.Environment;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EmployeeManager {
+public class EmployeeRepository {
     private List<Employee> employees;
 
-    public EmployeeManager() {
+    public EmployeeRepository() {
         try {
-            Path path = Paths.get(Var.CSV_FILE_PATH);
+            Path path = Paths.get(Environment.CSV_EMPLOYEES_PATH);
             if(Files.notExists(path))
                 Files.createFile(path);
-            this.employees = Employee.readEmployeesFromCSV(path);
+            this.employees = readEmployeesFromCSV(path);
         } catch (Exception e) {
             e.printStackTrace(System.err);
         }
@@ -29,7 +34,7 @@ public class EmployeeManager {
 
     public void addEmployee(Employee employee) {
         employees.add(employee);
-        Employee.updateEmployeesInCSV(employees);
+        updateEmployeesInCSV(employees);
     }
 
     public void updateEmployee(Employee updatedEmployee) {
@@ -42,7 +47,7 @@ public class EmployeeManager {
                 employee.setAdmissionDate(updatedEmployee.getAdmissionDate());
                 employee.setCategory(updatedEmployee.getCategory());
                 employee.setSalary(updatedEmployee.getSalary());
-                Employee.updateEmployeesInCSV(employees);
+                updateEmployeesInCSV(employees);
                 break;
             }
         }
@@ -67,5 +72,39 @@ public class EmployeeManager {
             }
         }
         return null;
+    }
+
+    // Leer empleados del archivo CSV
+    public List<Employee> readEmployeesFromCSV(Path path) {
+        List<Employee> employees = new ArrayList<>();
+
+        try (FileReader fileReader = new FileReader(path.toFile().getPath());
+             BufferedReader br = new BufferedReader(fileReader)) {
+
+            String separator = Environment.CSV_SEPARATOR + "";  //Separador = , (coma)
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(separator);
+                Employee employee = new Employee(data);
+                employees.add(employee);
+            }
+        } catch (IOException e) {
+            e.printStackTrace(System.err);
+        }
+        return employees;
+    }
+
+    // Guardar datos del empleado en el archivo CSV
+    public void updateEmployeesInCSV(List<Employee> employees) {
+        try {
+            Path path = Paths.get(Environment.CSV_EMPLOYEES_PATH);
+            List<String> strings = new ArrayList<>(employees.size());
+            for (Employee employee : employees)
+                strings.add(employee.toString());
+
+            Files.write(path, strings, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace(System.err);
+        }
     }
 }

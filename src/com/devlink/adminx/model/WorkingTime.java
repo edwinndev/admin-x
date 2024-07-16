@@ -1,26 +1,28 @@
 package com.devlink.adminx.model;
 
-public class Work {
+import com.devlink.adminx.utils.Environment;
+
+public class WorkingTime {
     private String month;
     private String year;
     private double hours;
     private double total;
 
-    public Work() {
+    public WorkingTime() {
     }
 
-    public Work(String month, String year, double hours, double total) {
+    public WorkingTime(String month, String year, double hours, double total) {
         this.month = month;
         this.year = year;
         this.hours = hours;
         this.total = total;
     }
 
-    public Work(String[] details) {
-        this.month = details[0];
-        this.year = details[1];
-        this.hours = Double.parseDouble(details[2]);
-        this.total = Double.parseDouble(details[3]);
+    public WorkingTime(String[] data) {
+        this.month = data[0];
+        this.year = data[1];
+        this.hours = Double.parseDouble(data[2]);
+        this.total = Double.parseDouble(data[3]);
     }
 
     public String getMonth() {
@@ -57,6 +59,7 @@ public class Work {
 
     @Override
     public String toString() {
-        return month + ',' + year + ',' + hours + ',' + total;
+        char separator = Environment.CSV_SEPARATOR;
+        return month + separator + year + separator + hours + separator + total;
     }
 }

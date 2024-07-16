@@ -1,6 +1,7 @@
 package com.devlink.adminx.utils;
 
-import com.devlink.adminx.model.Work;
+import com.devlink.adminx.model.WorkingTime;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -15,16 +16,16 @@ import java.util.List;
 public class FileUtils {
     private static final String CSV_SPLIT = ",";
 
-    public static List<Work> readHoursFromCSVByUser(Path path) {
-        List<Work> data = new ArrayList<>();
+    public static List<WorkingTime> readHoursFromCSVByUser(Path path) {
+        List<WorkingTime> data = new ArrayList<>();
 
         try (FileReader fileReader = new FileReader(path.toFile().getPath());
              BufferedReader br = new BufferedReader(fileReader)) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] details = line.split(CSV_SPLIT);
-                Work work = new Work(details);
-                data.add(work);
+                WorkingTime workingTime = new WorkingTime(details);
+                data.add(workingTime);
             }
         } catch (IOException e) {
             e.printStackTrace(System.err);
@@ -34,7 +35,7 @@ public class FileUtils {
 
     public static void updateWorksCSV(List<String> works, String employeeCode) {
         try {
-            Path path = Paths.get(Var.RESOURCE_DATA.concat(employeeCode).concat(".csv"));
+            Path path = Paths.get(Environment.SRC_DATA_PATH.concat(employeeCode).concat(".csv"));
             Files.write(path, works, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
             e.printStackTrace(System.err);
