@@ -1,7 +1,6 @@
 package com.devlink.adminx.view;
 
 import com.devlink.adminx.model.WorkingTime;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -18,7 +17,7 @@ public class WorkingTimeView extends JDialog {
     public JLabel labelTotalImport;
     public JButton btnSendMail;
     public JButton btnAddTime;
-    public JButton btnDelete;
+    //public JButton btnDelete;
     public JButton btnSave;
     public JProgressBar progressBar;
     private final ViewFactory viewFactory;
@@ -79,18 +78,16 @@ public class WorkingTimeView extends JDialog {
         labelExpectedHours = new JLabel("");
         labelCurrentHours = new JLabel("");
         labelTotalImport = new JLabel("");
-        hoursPanel.add(createHourPanel("Horas Esperadas", labelExpectedHours, Color.BLUE));
-        hoursPanel.add(createHourPanel("Horas Registradas", labelCurrentHours, Color.MAGENTA));
-        hoursPanel.add(createHourPanel("Total importe", labelTotalImport, Color.ORANGE));
+        hoursPanel.add(createHourPanel("Monto retencion acumulado", labelExpectedHours, Color.BLUE));
+        hoursPanel.add(createHourPanel("Monto bruto acumulado", labelCurrentHours, Color.MAGENTA));
+        hoursPanel.add(createHourPanel("Monto neto acumulado", labelTotalImport, Color.ORANGE));
 
         headerPanel.add(hoursPanel, BorderLayout.SOUTH);
 
         JPanel menuPanel = new JPanel(new BorderLayout());
         btnSave = viewFactory.createStyledButton("Guargar");
-        btnDelete = viewFactory.createStyledButton("Eliminar");
         btnAddTime = viewFactory.createStyledButton("Agregar");
         menuPanel.add(btnSave, BorderLayout.EAST);
-        menuPanel.add(btnDelete, BorderLayout.CENTER);
         menuPanel.add(btnAddTime, BorderLayout.WEST);
 
         // Panel principal
@@ -99,7 +96,7 @@ public class WorkingTimeView extends JDialog {
 
         //Tabla para el registro de horas
         worksTable = buildTable();
-        worksTable.getColumnModel().getColumn(4).setCellEditor(new ButtonEditor());
+        worksTable.getColumnModel().getColumn(5).setCellEditor(new ButtonEditor());
 
         JScrollPane scrollPane = new JScrollPane(worksTable);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
@@ -113,7 +110,7 @@ public class WorkingTimeView extends JDialog {
     }
 
     private JTable buildTable() {
-        String[] columnNames = {"Mes", "Año", "Horas inputadas", "Pago", "Enviar"};
+        String[] columnNames = {"Mes", "Año", "Monto Bruto", "% Retencion", "Monto Neto", "Enviar"};
 
         tableModel = new DefaultTableModel(columnNames, 0);
         JTable table = new JTable(tableModel);
@@ -123,7 +120,8 @@ public class WorkingTimeView extends JDialog {
 
     public void addWorkToTable(WorkingTime workingTime) {
         tableModel.addRow(new Object[]{
-                workingTime.getMonth(), workingTime.getYear(), workingTime.getHours(), workingTime.getTotal()
+                workingTime.getMonth(), workingTime.getYear(), workingTime.getBaseAmount(),
+                workingTime.getRetention(), workingTime.getNetAmount()
         });
     }
 
@@ -131,7 +129,6 @@ public class WorkingTimeView extends JDialog {
         JPanel panel = new JPanel();
         panel.setBackground(new Color(220, 240, 230));
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        //panel.setBorder(BorderFactory.createLineBorder(color, 2));
 
         JLabel labelTitle = new JLabel(title);
         labelTitle.setForeground(color);

@@ -1,7 +1,6 @@
 package com.devlink.adminx.utils;
 
 import com.devlink.adminx.model.WorkingTime;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -16,7 +15,7 @@ import java.util.List;
 public class FileUtils {
     private static final String CSV_SPLIT = ",";
 
-    public static List<WorkingTime> readHoursFromCSVByUser(Path path) {
+    public static List<WorkingTime> readDataFromCSVByUser(Path path) {
         List<WorkingTime> data = new ArrayList<>();
 
         try (FileReader fileReader = new FileReader(path.toFile().getPath());

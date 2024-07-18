@@ -5,24 +5,39 @@ import com.devlink.adminx.utils.Environment;
 public class WorkingTime {
     private String month;
     private String year;
-    private double hours;
-    private double total;
+    private double baseAmount;
+    private double retention;
+    private double netAmount;
 
     public WorkingTime() {
-    }
-
-    public WorkingTime(String month, String year, double hours, double total) {
-        this.month = month;
-        this.year = year;
-        this.hours = hours;
-        this.total = total;
     }
 
     public WorkingTime(String[] data) {
         this.month = data[0];
         this.year = data[1];
-        this.hours = Double.parseDouble(data[2]);
-        this.total = Double.parseDouble(data[3]);
+        this.baseAmount = Double.parseDouble(data[2]);
+        this.retention = Double.parseDouble(data[3]);
+        this.netAmount = Double.parseDouble(data[4]);
+    }
+
+    public WorkingTime(String month, String year, double baseAmount, double retention) {
+        this.month = month;
+        this.year = year;
+        this.baseAmount = baseAmount;
+        this.retention = retention;
+    }
+
+    public double calculateTotal() {
+        return this.calculateTotal(this.baseAmount);
+    }
+
+    public double calculateTotal(double baseAmount) {
+        double taxes = (baseAmount * this.retention / 100.00);
+        return baseAmount - taxes;
+    }
+
+    public double calculateRetention() {
+        return (baseAmount * this.retention / 100.00);
     }
 
     public String getMonth() {
@@ -41,25 +56,33 @@ public class WorkingTime {
         this.year = year;
     }
 
-    public double getHours() {
-        return hours;
+    public double getBaseAmount() {
+        return baseAmount;
     }
 
-    public void setHours(double hours) {
-        this.hours = hours;
+    public void setBaseAmount(double baseAmount) {
+        this.baseAmount = baseAmount;
     }
 
-    public double getTotal() {
-        return total;
+    public double getRetention() {
+        return retention;
     }
 
-    public void setTotal(double total) {
-        this.total = total;
+    public void setRetention(double retention) {
+        this.retention = retention;
+    }
+
+    public double getNetAmount() {
+        return netAmount;
+    }
+
+    public void setNetAmount(double netAmount) {
+        this.netAmount = netAmount;
     }
 
     @Override
     public String toString() {
         char separator = Environment.CSV_SEPARATOR;
-        return month + separator + year + separator + hours + separator + total;
+        return month + separator + year + separator + baseAmount + separator + retention + separator + netAmount;
     }
 }

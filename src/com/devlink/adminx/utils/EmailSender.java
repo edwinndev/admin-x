@@ -41,10 +41,12 @@ public class EmailSender {
                         padding: 0;
                     }
                     .container {
-                        width: 80%;
                         margin: 0 auto;
                         padding: 20px;
                         background-color: #ffffff;
+                    }
+                    .table-container {
+                        overflow-x: auto;
                     }
                     h1, p {
                         margin-bottom: 20px;
@@ -64,6 +66,7 @@ public class EmailSender {
                         padding: 10px;
                         text-align: left;
                         border: 1.6px solid #338ed7;
+                        white-space: nowrap;
                     }
                     th {
                         background-color: #338ed7;
@@ -97,7 +100,9 @@ public class EmailSender {
                                     Por favor, revisa la información y contáctanos si tienes alguna pregunta o necesitas 
                                     asistencia adicional.
                                 </p>
+                                <div class="table-container">
                                 %s
+                                </div>
                             </main>
                             <footer class="footer">
                                 <p>Gracias.</p>

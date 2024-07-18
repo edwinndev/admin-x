@@ -23,9 +23,6 @@ public class Employee {
         this.salary = Double.parseDouble(data[7]);
     }
 
-    // Getters y setters
-
-
     public Employee(String code, String email, String names, String address,
                     String phone, String admissionDate, String category, double salary) {
         this.code = code;

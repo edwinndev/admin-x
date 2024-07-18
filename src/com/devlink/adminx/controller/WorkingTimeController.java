@@ -36,7 +36,6 @@ public class WorkingTimeController {
         view.labelNames.setText("NOMBRES :  " + employee.getNames());
         view.labelEmail.setText("EMAIL         :  " + employee.getEmail());
         view.btnSave.addActionListener(new SaveTimeListener());
-        view.btnDelete.addActionListener(new DeleteTimeListener());
         view.btnAddTime.addActionListener(new AddTimeListener());
         view.btnSendMail.addActionListener(this::startTask);
 
@@ -63,26 +62,27 @@ public class WorkingTimeController {
         // Limpiar tabla antes de cargar datos
         view.tableModel.setRowCount(0);
 
-        double totalHours = 156;
-        double totalWorkHours = 0.0;
+        double totalRetention = 0.0;
+        double baseAccumulated = 0.0;
+        double amountAccumulated = 0.0;
 
-        List<WorkingTime> workingTimes = FileUtils.readHoursFromCSVByUser(employeeHoursPath);
+        List<WorkingTime> workingTimes = FileUtils.readDataFromCSVByUser(employeeHoursPath);
         for (WorkingTime workingTime : workingTimes) {
-            totalWorkHours += workingTime.getHours();
+            totalRetention += workingTime.calculateRetention();
+            baseAccumulated += workingTime.getBaseAmount();
+            amountAccumulated += workingTime.getNetAmount();
             view.addWorkToTable(workingTime);
         }
 
-        double totalImport = employee.getSalary() / totalWorkHours;
-
-        view.labelExpectedHours.setText(String.format("%.2f", totalHours));
-        view.labelCurrentHours.setText(String.format("%.2f", totalWorkHours));
-        view.labelTotalImport.setText(String.format("%.2f", totalImport));
+        view.labelExpectedHours.setText(String.format("PEN %.2f", totalRetention));
+        view.labelCurrentHours.setText(String.format("PEN %.2f", baseAccumulated));
+        view.labelTotalImport.setText(String.format("PEN %.2f", amountAccumulated));
     }
 
     private void startTask(ActionEvent e) {
         view.btnSendMail.setEnabled(false);
 
-        List<WorkingTime> workingTimes = FileUtils.readHoursFromCSVByUser(employeeHoursPath);
+        List<WorkingTime> workingTimes = FileUtils.readDataFromCSVByUser(employeeHoursPath);
         String finalHtml = getFinalHtml(workingTimes);
 
         SwingWorker<Void, Integer> worker = new SwingWorker<>() {
@@ -129,18 +129,22 @@ public class WorkingTimeController {
         StringBuilder html = new StringBuilder();
         double totalImport = 0.0;
         for (WorkingTime workingTime : workingTimes) {
+            double retentionAmount = workingTime.calculateRetention();
             String item = String.format(
                     """
                     <tr>
                            <td>%s</td>
                            <td>%s</td>
-                           <td>%.2f</td>
-                           <td>USD %.2f</td>
-                           <td>USD %.2f</td>
+                           <td>PEN %.2f</td>
+                           <td>%.2f %%</td>
+                           <td>PEN %.2f</td>
+                           <td>PEN %.2f</td>
                     </tr>
-                    """, workingTime.getMonth(), workingTime.getYear(), workingTime.getHours(), employee.getSalary(), workingTime.getTotal());
+                    """,
+                    workingTime.getMonth(), workingTime.getYear(), workingTime.getBaseAmount(),
+                    workingTime.getRetention(), retentionAmount, workingTime.getNetAmount());
             html.append(item);
-            totalImport += workingTime.getTotal();
+            totalImport += workingTime.getNetAmount();
         }
 
         return String.format(
@@ -150,16 +154,17 @@ public class WorkingTimeController {
                        <tr>
                            <th>Mes</th>
                            <th>Año</th>
-                           <th>Horas inputadas</th>
-                           <th>Importe Base</th>
-                           <th>Importe Extra</th>
+                           <th>Monto Base</th>
+                           <th>%% de Retencion</th>
+                           <th>Monto de Retencion</th>
+                           <th>Monto Neto</th>
                        </tr>
                    </thead>
                    <tbody>
                        %s
                        <tr>
-                           <td colspan="4" style="text-align: right;">Total</td>
-                           <td>USD %.2f</td>
+                           <td colspan="5" style="text-align: right;"><b>Total</b></td>
+                           <td><b>PEN %.2f</b></td>
                        </tr>
                    </tbody>
                </table>
@@ -186,26 +191,20 @@ public class WorkingTimeController {
         for (int i = 0; i < view.tableModel.getRowCount(); i++) {
             String month = view.tableModel.getValueAt(i, 0).toString();
             String year = view.tableModel.getValueAt(i, 1).toString();
-            double hours = Double.parseDouble(view.tableModel.getValueAt(i, 2).toString());
-            double total = Double.parseDouble(view.tableModel.getValueAt(i, 3).toString());
 
-            WorkingTime workingTime = new WorkingTime(month, year, hours, total);
-            data.add(workingTime.toString());
-        }
-        FileUtils.updateWorksCSV(data, employee.getCode());
-    }
+            try {
+                double baseAmount = Double.parseDouble(view.tableModel.getValueAt(i, 2).toString());
+                double retention = Double.parseDouble(view.tableModel.getValueAt(i, 3).toString());
 
-    class DeleteTimeListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            int selectedRow = view.worksTable.getSelectedRow();
-            if (selectedRow != -1) {
-                view.tableModel.removeRow(selectedRow);
-                updateDataCSV();
-                updateWorksTable();
-            } else {
-                JOptionPane.showMessageDialog(view, "Fila no seleccionada", "Error", JOptionPane.ERROR_MESSAGE);
+                WorkingTime workingTime = new WorkingTime(month, year, baseAmount, retention);
+                double netAmount = workingTime.calculateTotal(baseAmount);
+                workingTime.setNetAmount(netAmount);
+
+                data.add(workingTime.toString());
+            } catch (NumberFormatException | NullPointerException e) {
+                JOptionPane.showMessageDialog(view, "Monto base o porcentaje de retencion deben ser numeros");
             }
         }
+        FileUtils.updateWorksCSV(data, employee.getCode());
     }
 }
