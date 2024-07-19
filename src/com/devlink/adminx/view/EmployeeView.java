@@ -10,6 +10,9 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class EmployeeView extends JFrame {
     public JTextField txtCode;
@@ -203,20 +206,41 @@ public class EmployeeView extends JFrame {
     }
 
     public Employee getEmployeeFromFields() {
-        return new Employee(
-                txtCode.getText(), txtEmail.getText(), txtNames.getText(),
-                txtAddress.getText(), txtPhone.getText(), txtAdmissionDate.getText(),
-                txtCategory.getText(), Double.parseDouble(txtSalary.getText())
-        );
+        String strAdmissionDate = txtAdmissionDate.getText();
+        if(strAdmissionDate.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe ingresar la fecha de ingreso del empleado");
+            return null;
+        }
+
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            LocalDate currentDatePlus = LocalDate.now().plusDays(20);
+            LocalDate admissionDate   = LocalDate.parse(strAdmissionDate, formatter);
+            if(admissionDate.isAfter(currentDatePlus)) {
+                JOptionPane.showMessageDialog(this, "La fecha de ingreso no debe ser mayor al " + formatter.format(currentDatePlus));
+                return null;
+            }
+
+            return new Employee(
+                    txtCode.getText(), txtEmail.getText(), txtNames.getText(),
+                    txtAddress.getText(), txtPhone.getText(), admissionDate,
+                    txtCategory.getText(), Double.parseDouble(txtSalary.getText())
+            );
+        } catch (DateTimeParseException | NullPointerException e) {
+            JOptionPane.showMessageDialog(
+                    this, "La fecha de ingreso es incorrecta. Debe tener el siguiente formato: dd-MM-yyyy" );
+            return null;
+        }
     }
 
     public void setFields(Employee employee) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         txtCode.setText(employee.getCode());
         txtEmail.setText(employee.getEmail());
         txtNames.setText(employee.getNames());
         txtAddress.setText(employee.getAddress());
         txtPhone.setText(employee.getPhone());
-        txtAdmissionDate.setText(employee.getAdmissionDate());
+        txtAdmissionDate.setText(formatter.format(employee.getAdmissionDate()));
         txtCategory.setText(employee.getCategory());
         txtSalary.setText(String.valueOf(employee.getSalary()));
     }

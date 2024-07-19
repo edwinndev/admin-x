@@ -45,6 +45,8 @@ public class EmployeeController {
         @Override
         public void actionPerformed(ActionEvent e) {
             Employee employee = view.getEmployeeFromFields();
+            if(employee == null) return;
+
             if (!employeeRepository.isDuplicate(employee)) {
                 employeeRepository.addEmployee(employee);
                 view.addEmployeeToTable(employee);
@@ -61,26 +63,30 @@ public class EmployeeController {
         @Override
         public void actionPerformed(ActionEvent e) {
             Employee employee = view.getEmployeeFromFields();
-            employeeRepository.updateEmployee(employee);
-            view.updateEmployeeInTable(employee);
+            if(employee != null) {
+                employeeRepository.updateEmployee(employee);
+                view.updateEmployeeInTable(employee);
+            }
         }
     }
 
     class DeleteEmployeeListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            String code = view.getEmployeeFromFields().getCode();
+            Employee employee = view.getEmployeeFromFields();
 
-            if(code != null) {
-                int option = JOptionPane.showConfirmDialog(view, "¿Eliminar empleado?", "System", JOptionPane.YES_NO_OPTION);
-                if(option == JOptionPane.YES_OPTION) {
-                    boolean deleted = employeeRepository.deleteEmployee(code);
-                    if(deleted) {
-                        employeeRepository.updateEmployeesInCSV(employeeRepository.getEmployees());
-                        view.deleteEmployeeFromTable();
-                        clearFields();
-                    } else {
-                        JOptionPane.showMessageDialog(view, "¡Error al eliminar el empleado!");
+            if(employee != null) {
+                if(employee.getCode() != null) {
+                    int option = JOptionPane.showConfirmDialog(view, "¿Eliminar empleado?", "System", JOptionPane.YES_NO_OPTION);
+                    if(option == JOptionPane.YES_OPTION) {
+                        boolean deleted = employeeRepository.deleteEmployee(employee.getCode());
+                        if(deleted) {
+                            employeeRepository.updateEmployeesInCSV(employeeRepository.getEmployees());
+                            view.deleteEmployeeFromTable();
+                            clearFields();
+                        } else {
+                            JOptionPane.showMessageDialog(view, "¡Error al eliminar el empleado!");
+                        }
                     }
                 }
             }

@@ -1,6 +1,8 @@
 package com.devlink.adminx.model;
 
 import com.devlink.adminx.utils.Environment;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class Employee {
     private String code;
@@ -8,23 +10,23 @@ public class Employee {
     private String names;
     private String address;
     private String phone;
-    private String admissionDate;
+    private LocalDate admissionDate;
     private String category;
     private double salary;
 
-    public Employee(String[] data) {
+    public Employee(String[] data, DateTimeFormatter formatter) {
         this.code = data[0];
         this.email = data[1];
         this.names = data[2];
         this.address = data[3];
         this.phone = data[4];
-        this.admissionDate = data[5];
+        this.admissionDate = LocalDate.parse(data[5], formatter);
         this.category = data[6];
         this.salary = Double.parseDouble(data[7]);
     }
 
     public Employee(String code, String email, String names, String address,
-                    String phone, String admissionDate, String category, double salary) {
+                    String phone, LocalDate admissionDate, String category, double salary) {
         this.code = code;
         this.email = email;
         this.names = names;
@@ -75,11 +77,11 @@ public class Employee {
         this.phone = phone;
     }
 
-    public String getAdmissionDate() {
+    public LocalDate getAdmissionDate() {
         return admissionDate;
     }
 
-    public void setAdmissionDate(String admissionDate) {
+    public void setAdmissionDate(LocalDate admissionDate) {
         this.admissionDate = admissionDate;
     }
 
@@ -99,15 +101,14 @@ public class Employee {
         this.salary = salary;
     }
 
-    @Override
-    public String toString() {
+    public String convert(DateTimeFormatter formatter) {
         char separator = Environment.CSV_SEPARATOR;
         return code + separator +
                 email + separator +
                 names + separator +
                 address + separator +
                 phone + separator +
-                admissionDate + separator +
+                formatter.format(admissionDate) + separator +
                 category + separator +
                 salary;
     }

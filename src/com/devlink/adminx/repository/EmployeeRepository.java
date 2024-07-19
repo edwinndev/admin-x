@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,11 +82,12 @@ public class EmployeeRepository {
         try (FileReader fileReader = new FileReader(path.toFile().getPath());
              BufferedReader br = new BufferedReader(fileReader)) {
 
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
             String separator = Environment.CSV_SEPARATOR + "";  //Separador = , (coma)
             String line;
             while ((line = br.readLine()) != null) {
                 String[] data = line.split(separator);
-                Employee employee = new Employee(data);
+                Employee employee = new Employee(data, formatter);
                 employees.add(employee);
             }
         } catch (IOException e) {
@@ -97,10 +99,11 @@ public class EmployeeRepository {
     // Guardar datos del empleado en el archivo CSV
     public void updateEmployeesInCSV(List<Employee> employees) {
         try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
             Path path = Paths.get(Environment.CSV_EMPLOYEES_PATH);
             List<String> strings = new ArrayList<>(employees.size());
             for (Employee employee : employees)
-                strings.add(employee.toString());
+                strings.add(employee.convert(formatter));
 
             Files.write(path, strings, StandardCharsets.UTF_8);
         } catch (IOException e) {
