@@ -12,6 +12,7 @@ public class PropsUtils {
             Properties prop = new Properties();
             InputStream in = new FileInputStream(filePath);
             prop.load(in);
+            in.close();
             return prop;
         } catch (IOException e) {
             e.printStackTrace(System.err);
