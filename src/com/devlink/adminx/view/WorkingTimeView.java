@@ -17,7 +17,6 @@ public class WorkingTimeView extends JDialog {
     public JLabel labelTotalImport;
     public JButton btnSendMail;
     public JButton btnAddTime;
-    //public JButton btnDelete;
     public JButton btnSave;
     public JProgressBar progressBar;
     private final ViewFactory viewFactory;

@@ -12,6 +12,8 @@ public class WorkingTime {
     public WorkingTime() {
     }
 
+    //Getter - Setter
+
     public WorkingTime(String[] data) {
         this.month = data[0];
         this.year = data[1];

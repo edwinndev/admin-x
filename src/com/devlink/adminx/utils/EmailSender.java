@@ -34,7 +34,23 @@ public class EmailSender {
 
     public boolean sendEmail(Employee employee, String subject, String content) {
         try {
-            String styles = """
+            String htmlTemplate = getHtmlTemplate(employee, content);
+
+            Message mimeMessage = new MimeMessage(session);
+            mimeMessage.setFrom(new InternetAddress(from));
+            mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(employee.getEmail()));
+            mimeMessage.setSubject(subject);
+            mimeMessage.setContent(htmlTemplate, "text/html;charset=utf-8");
+
+            Transport.send(mimeMessage);
+            return true;
+        } catch (MessagingException e) {
+            return false;
+        }
+    }
+
+    private String getHtmlTemplate(Employee employee, String content) {
+        String styles = """
                     body {
                         font-family: Arial, sans-serif;
                         line-height: 1.6;
@@ -81,49 +97,37 @@ public class EmailSender {
                     }
                     """;
 
-            String htmlTemplate = String.format(
-                    """
-                    <!DOCTYPE html>
-                    <html lang="en">
-                    <head>
-                        <meta charset="UTF-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        <style>%s</style>
-                    </head>
-                    <body>
-                        <div class="container">
-                            <header>
-                                <h1>!Hola %s!</h1>
-                            </header>
-                            <main>
-                                <p>
-                                    Adjunto encontrarás los detalles de tus pagos correspondientes.
-                                    Por favor, revisa la información y contáctanos si tienes alguna pregunta o necesitas 
-                                    asistencia adicional.
-                                </p>
-                                <div class="table-container">
-                                %s
-                                </div>
-                            </main>
-                            <footer class="footer">
-                                <p>Gracias.</p>
-                            </footer>
-                        </div>
-                    </body>
-                    </html>
-                    """, styles, employee.getNames(), content);
-
-            Message mimeMessage = new MimeMessage(session);
-            mimeMessage.setFrom(new InternetAddress(from));
-            mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(employee.getEmail()));
-            mimeMessage.setSubject(subject);
-            mimeMessage.setContent(htmlTemplate, "text/html;charset=utf-8");
-
-            Transport.send(mimeMessage);
-            return true;
-        } catch (MessagingException e) {
-            return false;
-        }
+        return String.format(
+                """
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <style>%s</style>
+                </head>
+                <body>
+                    <div class="container">
+                        <header>
+                            <h1>!Hola %s!</h1>
+                        </header>
+                        <main>
+                            <p>
+                                Adjunto encontrarás los detalles de tus pagos correspondientes.
+                                Por favor, revisa la información y contáctanos si tienes alguna pregunta o necesitas 
+                                asistencia adicional.
+                            </p>
+                            <div class="table-container">
+                            %s
+                            </div>
+                        </main>
+                        <footer class="footer">
+                            <p>Gracias.</p>
+                        </footer>
+                    </div>
+                </body>
+                </html>
+                """, styles, employee.getNames(), content);
     }
 }
 

@@ -14,6 +14,8 @@ public class Employee {
     private String category;
     private double salary;
 
+    //Getter - Setter
+
     public Employee(String[] data, DateTimeFormatter formatter) {
         this.code = data[0];
         this.email = data[1];

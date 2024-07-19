@@ -10,10 +10,9 @@ import java.io.File;
 import java.io.IOException;
 
 public class LoginView extends JFrame {
-    private JTextField usernameField;
-    private JPasswordField passwordField;
-    private JButton loginButton;
-    private JCheckBox rememberMeCheckBox;
+    private final JTextField usernameField;
+    private final JPasswordField passwordField;
+    private final JButton loginButton;
 
     public LoginView() {
         // Configuración de la ventana
@@ -63,7 +62,7 @@ public class LoginView extends JFrame {
         usernameField = new RoundedTextField(18);
         passwordField = new RoundedPasswordField(18);
         loginButton = new RoundedButton("Iniciar Sesión");
-        rememberMeCheckBox = new JCheckBox("Recuérdame");
+        JCheckBox rememberMeCheckBox = new JCheckBox("Recuérdame");
 
         // Estilo de componentes
         Font customFont = new Font("Sans Serif", Font.PLAIN, 16); // Aumentar tamaño del texto

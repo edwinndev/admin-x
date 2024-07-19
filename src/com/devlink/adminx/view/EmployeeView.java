@@ -92,7 +92,7 @@ public class EmployeeView extends JFrame {
         addField(panel, "Salario Mensual:", txtSalary, gbc);
 
         ViewFactory viewFactory = new ViewFactory();
-        btnAddHours = viewFactory.createStyledButton("Ver horas");
+        btnAddHours = viewFactory.createStyledButton("Ver honorarios");
         btnAddHours.setEnabled(false);
         addField(panel, "", btnAddHours, gbc);
 
@@ -224,11 +224,9 @@ public class EmployeeView extends JFrame {
             return new Employee(
                     txtCode.getText(), txtEmail.getText(), txtNames.getText(),
                     txtAddress.getText(), txtPhone.getText(), admissionDate,
-                    txtCategory.getText(), Double.parseDouble(txtSalary.getText())
-            );
+                    txtCategory.getText(), Double.parseDouble(txtSalary.getText()));
         } catch (DateTimeParseException | NullPointerException e) {
-            JOptionPane.showMessageDialog(
-                    this, "La fecha de ingreso es incorrecta. Debe tener el siguiente formato: dd-MM-yyyy" );
+            JOptionPane.showMessageDialog(this, "La fecha de ingreso es incorrecta. Debe tener el siguiente formato: dd-MM-yyyy" );
             return null;
         }
     }
